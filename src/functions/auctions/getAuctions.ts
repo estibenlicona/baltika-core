@@ -70,14 +70,22 @@ function extractPlayerIds(players: any[]): number[] {
 
 async function fetchAuctions(dataSource: DataSource, playerIds: number[]): Promise<any[]> {
     return await dataSource.query(
-        `
-    SELECT a.id, a.teamId, t.name AS teamName, t.emblem, a.playerId, a.value, a.date 
-    FROM Auctions a
-    INNER JOIN teams t ON a.teamId = t.id
-    WHERE a.playerId IN (?)
-    ORDER BY a.date DESC
+    `
+        SELECT a.id, a.teamId, t.name AS teamName, t.emblem, a.playerId, a.value, a.date 
+        FROM Auctions a
+        INNER JOIN teams t ON a.teamId = t.id
+        WHERE a.playerId IN (?)
+
+        UNION
+
+        SELECT NULL AS id, t.id AS teamId, t.name AS teamName, t.emblem, n.playerId, n.transferValue AS value, n.createdAt AS date
+        FROM Negotiations n
+        INNER JOIN teams t ON n.buyerTeamId = t.id 
+        WHERE n.playerId IN (?)
+
+        ORDER BY value DESC, date DESC
     `,
-        [playerIds]
+        [playerIds, playerIds]
     );
 }
 

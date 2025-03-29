@@ -2,9 +2,33 @@ import { APIGatewayEvent } from "aws-lambda";
 import { Amplify } from 'aws-amplify';
 import { events } from 'aws-amplify/data';
 import { headersConfig } from "../../config/headers";
+import { getDbConnection } from "../../commons/db-conecction";
+import { DataSource, Repository } from "typeorm";
+import { AuctionEntity } from "../../entities/auction.entity";
+
+interface CreateAuction {
+    teamId: number;
+    playerId: number;
+    seasonId: number;
+    value: number;
+}
 
 export async function handler(event: APIGatewayEvent) {
     try {
+        const dataSource: DataSource = await getDbConnection();
+        const request = JSON.parse(event.body || '{}') as Partial<CreateAuction>;
+
+        const seasonId = await fetchCurrentSeason(dataSource);
+        const auction = { ...request, seasonId };
+
+        const repository: Repository<AuctionEntity> = dataSource.getRepository(AuctionEntity);
+        const entity = repository.create(auction);
+        await repository.save(entity);
+
+        await dataSource.query(`
+            UPDATE Negotiations SET transferValue = ? WHERE buyerTeamId = ? AND playerId = ? AND seasonId = ?`,
+        [auction.value, auction.teamId, auction.playerId, auction.seasonId]);
+
         Amplify.configure({
             API: {
                 Events: {
@@ -16,7 +40,7 @@ export async function handler(event: APIGatewayEvent) {
             }
         });
 
-        await events.post('/default/channel', { some: 'data' });
+        await events.post('/default/channel', { sync: true });
 
         return {
             statusCode: 200,
@@ -31,6 +55,11 @@ export async function handler(event: APIGatewayEvent) {
             body: JSON.stringify({ message: 'An error occurred while creating the contract offer.' }),
         };
     }
+}
 
-
+async function fetchCurrentSeason(dataSource: DataSource): Promise<number> {
+    const [season] = await dataSource.query(
+        "SELECT value FROM Parameters WHERE code = 'CURRENT_SEASON'"
+    );
+    return Number(season.value);
 }

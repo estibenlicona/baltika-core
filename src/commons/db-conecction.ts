@@ -6,6 +6,7 @@ import { SeasonEntity } from '../entities/season.entity';
 import { TeamEntity } from '../entities/team.entity';
 import { PositionEntity } from '../entities/position.entity';
 import { ContractOfferEntity } from '../entities/contract-offer.entity';
+import { AuctionEntity } from "../entities/auction.entity";
 
 let dataSource: DataSource | null = null;
 
@@ -18,7 +19,7 @@ export async function getDbConnection(): Promise<DataSource> {
             username: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-            entities: [MatchEntity, TournamentEntity, SeasonEntity, TeamEntity, PositionEntity, ContractOfferEntity],
+            entities: [MatchEntity, TournamentEntity, SeasonEntity, TeamEntity, PositionEntity, ContractOfferEntity, AuctionEntity],
             synchronize: false,
             logging: false
         });

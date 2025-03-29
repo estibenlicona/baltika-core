@@ -181,5 +181,12 @@ functions:
       - httpApi:
           method: get
           path: /auctions
+  withdrawAuction:
+    handler: dist/functions/auctions/withdrawAuction.handler
+    events:
+      - httpApi:
+          method: delete
+          path: /auctions
+    timeout: 30
 plugins:
   - serverless-offline
