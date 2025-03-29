@@ -1,0 +1,37 @@
+{
+  "name": "baltika-core",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "handler.js",
+  "scripts": {
+    "build": "tsc",
+    "nodemon": "nodemon",
+    "debug": "npm run build && node --inspect-brk=9229 node_modules/serverless/run.js offline",
+    "start": "npm run build && npx serverless offline",
+    "dev": "npx tsc && npx serverless offline start",
+    "deploy": "npx tsc && npx serverless deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
+    "@types/aws-serverless-express": "^3.3.10",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.5",
+    "@types/uuid": "^10.0.0",
+    "nodemon": "^3.1.9",
+    "serverless": "^4.6.2",
+    "serverless-offline": "^14.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "aws-amplify": "^6.14.1",
+    "mongodb": "^5.9.2",
+    "mysql2": "^3.12.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20"
+  }
+}

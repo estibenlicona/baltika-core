@@ -1,0 +1,8 @@
+{
+    "watch": [
+        "src"
+    ],
+    "ext": "ts,json,yml",
+    "exec": "npm run start",
+    "ignore": ["node_modules", "dist"]
+}

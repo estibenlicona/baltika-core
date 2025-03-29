@@ -1,0 +1,185 @@
+service: baltika-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    DB_HOST: baltika.ctioae0mycpp.us-east-1.rds.amazonaws.com
+    DB_PORT: 3306
+    DB_USER: admin
+    DB_PASSWORD: Baltika2025*
+    DB_NAME: baltikadb
+    MONGO_DB_NAME: baltika
+    MONGO_URI: mongodb+srv://estibenlicona:21ShvmZs4e4UszGP@cluster0.k4jdy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+  httpApi:
+    cors:
+      allowedOrigins:
+        - 'http://localhost:4200'
+        - 'https://baltikeishon.com'
+        - 'https://www.baltikeishon.com'
+        - 'https://myclub.baltikeishon.com'
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+      allowedHeaders:
+        - '*'
+functions:
+  getUser:
+    handler: dist/functions/getUser.handler
+    events:
+      - httpApi:
+          method: get
+          path: /users/{username}
+    timeout: 30
+  getMatches:
+    handler: dist/functions/getMatches.handler
+    events:
+      - httpApi:
+          method: get
+          path: /match
+  getMatchDetail:
+    handler: dist/functions/getMatchDetail.handler
+    events:
+      - httpApi:
+          method: get
+          path: /match/detail
+  generateMatches:
+    handler: dist/functions/generateMatches.handler
+    events:
+      - httpApi:
+          method: post
+          path: /generate-matches
+    timeout: 60
+  createTournament:
+    handler: dist/functions/createTournament.handler
+    events:
+      - httpApi:
+          method: post
+          path: /tournament
+  createSeason:
+    handler: dist/functions/createSeason.handler
+    events:
+      - httpApi:
+          method: post
+          path: /season
+  createTeam:
+    handler: dist/functions/createTeam.handler
+    events:
+      - httpApi:
+          method: post
+          path: /team
+  updateMatch:
+    handler: dist/functions/updateMatch.handler
+    events:
+      - httpApi:
+          method: put
+          path: /match
+    timeout: 30
+  deletePlayerStatistics: 
+    handler: dist/functions/deletePlayerStatistics.handler
+    events:
+      - httpApi:
+          method: delete
+          path: /match/statistics
+    timeout: 30
+  getPositions:
+    handler: dist/functions/getPositions.handler
+    events:
+      - httpApi:
+          method: get
+          path: /positions/{tournamentId}/{seasonId}/{round}
+    timeout: 30
+  getTeams:
+    handler: dist/functions/getTeams.handler
+    events:
+      - httpApi:
+          method: get
+          path: /teams
+  getPlayer:
+    handler: dist/functions/getPlayer.handler
+    events:
+      - httpApi:
+          method: get
+          path: /players/{id}
+    timeout: 30
+  getPlayers:
+    handler: dist/functions/getPlayers.handler
+    events:
+      - httpApi:
+          method: get
+          path: /players
+    timeout: 600
+  getSquad:
+    handler: dist/functions/getSquad.handler
+    events:
+      - httpApi:
+          method: get
+          path: /squad
+    timeout: 30
+  updateRegisterPlayer:
+    handler: dist/functions/updateRegisterPlayer.handler
+    events:
+      - httpApi:
+          method: put
+          path: /squad
+    timeout: 30
+  getOffers:
+    handler: dist/functions/getOffers.handler
+    events:
+      - httpApi:
+          method: get
+          path: /offer
+    timeout: 30
+  createOffer:
+    handler: dist/functions/createOffer.handler
+    events:
+      - httpApi:
+          method: post
+          path: /offer
+    timeout: 30
+  updateOffer:
+    handler: dist/functions/updateOffer.handler
+    events:
+      - httpApi:
+          method: put
+          path: /offer
+    timeout: 30
+  updateStatusOffer:
+    handler: dist/functions/updateStatusOffer.handler
+    events:
+      - httpApi:
+          method: put
+          path: /offer/status
+    timeout: 30
+  getBubget:
+    handler: dist/functions/getBudget/index.handler
+    events:
+      - httpApi:
+          method: get
+          path: /budget
+    timeout: 30
+  getScorers:
+    handler: dist/functions/getScorers.handler
+    events:
+      - httpApi:
+          method: get
+          path: /scorers
+    timeout: 30
+  addAuctions:
+    handler: dist/functions/auctions/addAuction.handler
+    events:
+      - httpApi:
+          method: post
+          path: /auctions
+    timeout: 30
+  getAuctions:
+    handler: dist/functions/auctions/getAuctions.handler
+    events:
+      - httpApi:
+          method: get
+          path: /auctions
+plugins:
+  - serverless-offline
