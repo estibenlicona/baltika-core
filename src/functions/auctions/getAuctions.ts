@@ -51,16 +51,24 @@ async function fetchCurrentSeason(dataSource: DataSource): Promise<number> {
 }
 
 async function fetchPlayers(dataSource: DataSource, teamId: number, season: number): Promise<any[]> {
+
+    const players = await dataSource.query("SELECT n.playerId FROM Negotiations n WHERE n.buyerTeamId = ? AND n.seasonId = ?",
+        [teamId, season]
+    );
+
+    const playerIds = extractPlayerIds(players);
+
     return await dataSource.query(
         `
-    SELECT n.id, n.playerId, p.position, p.photo, p.name, n.status, n.seasonId 
-    FROM Players p 
-    INNER JOIN Negotiations n ON p.id = n.playerId
-    INNER JOIN teams t ON n.buyerTeamId = t.id
-    WHERE n.buyerTeamId = ? AND n.seasonId = ? AND n.status = 'SUBASTA'
-    ORDER BY p.name ASC
+        SELECT n.id, n.playerId, p.position, p.photo, p.name, n.status, n.seasonId, COUNT(*) AS total
+        FROM Players p 
+        INNER JOIN Negotiations n ON p.id = n.playerId
+        WHERE n.playerId IN (?)
+        GROUP BY p.id
+        HAVING COUNT(*) > 1
+        ORDER BY p.name ASC
     `,
-        [teamId, season]
+        [playerIds]
     );
 }
 

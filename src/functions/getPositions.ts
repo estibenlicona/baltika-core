@@ -22,10 +22,9 @@ interface PositionsQuery {
 export async function handler(event: APIGatewayEvent) {
     
     const tournamentId: number = Number(event.pathParameters?.tournamentId);
-    const seasonId: number = Number(event.pathParameters?.seasonId);
     const round: number = Number(event.pathParameters?.round);
 
-    if (!tournamentId || !seasonId || !round) {
+    if (!tournamentId || !round) {
         return {
             headers: headersConfig,
             statusCode: 400,
@@ -34,6 +33,9 @@ export async function handler(event: APIGatewayEvent) {
     }
 
     const dataSource: DataSource = await getDbConnection();
+
+    const seasonId = await fetchCurrentSeason(dataSource);
+
     const positions = await dataSource.query<Array<PositionsQuery>>(
         `
         WITH home_stats AS (
@@ -110,4 +112,11 @@ export async function handler(event: APIGatewayEvent) {
         statusCode: 200,
         body: JSON.stringify(positions),
     };
+}
+
+async function fetchCurrentSeason(dataSource: DataSource): Promise<number> {
+    const [season] = await dataSource.query(
+        "SELECT value FROM Parameters WHERE code = 'CURRENT_SEASON'"
+    );
+    return Number(season.value);
 }
