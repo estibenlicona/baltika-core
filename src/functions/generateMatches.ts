@@ -15,6 +15,7 @@ export async function handler(event: APIGatewayEvent) {
 
     if (teamIds.length === 0) {
         return {
+            headers: headersConfig,
             statusCode: 400,
             body: JSON.stringify({ message: "No teams provided" }),
         };
@@ -27,9 +28,21 @@ export async function handler(event: APIGatewayEvent) {
     const matchEntities = matchRepository.create(matchs);
     await matchRepository.save(matchEntities);
 
+    // Calcular estadísticas del fixture
+    const totalTeams = teamIds.length;
+    const totalRounds = fixture.length;
+    const totalMatches = matchs.length;
+
     return {
         headers: headersConfig,
         statusCode: 200,
-        body: JSON.stringify({ message: 'Fixture generated successfull.' }),
+        body: JSON.stringify({ 
+            message: 'Fixture generated successfully',
+            stats: {
+                totalTeams,
+                totalRounds,
+                totalMatches
+            }
+        }),
     };
 }

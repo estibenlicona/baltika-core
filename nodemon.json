@@ -3,6 +3,6 @@
         "src"
     ],
     "ext": "ts,json,yml",
-    "exec": "npm run start",
+    "exec": "npm run local",
     "ignore": ["node_modules", "dist"]
 }

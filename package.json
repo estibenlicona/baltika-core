@@ -9,7 +9,8 @@
     "debug": "npm run build && node --inspect-brk=9229 node_modules/serverless/run.js offline",
     "start": "npm run build && npx serverless offline",
     "dev": "npx tsc && npx serverless offline start",
-    "deploy": "npx tsc && npx serverless deploy"
+    "deploy": "npx tsc && npx serverless deploy",
+    "local": "npm run build && serverless offline --noPrependStageInUrl"
   },
   "keywords": [],
   "author": "",
@@ -28,9 +29,13 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.821.0",
+    "@firebase/storage": "^0.13.12",
     "aws-amplify": "^6.14.1",
+    "firebase": "^11.8.1",
     "mongodb": "^5.9.2",
     "mysql2": "^3.12.0",
+    "primeicons": "^7.0.0",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.20"
   }

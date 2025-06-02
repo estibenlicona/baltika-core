@@ -13,4 +13,7 @@ export class TeamEntity extends BaseEntity {
 
     @Column()
     emblem!: string;
+
+    @Column({ type: 'tinyint', default: 1 })
+    active!: number;
 }

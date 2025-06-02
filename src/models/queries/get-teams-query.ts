@@ -3,4 +3,5 @@ export interface GetTeamsQuery {
     name: string;
     emblem: string;
     assistant: string;
+    active: boolean;
 }

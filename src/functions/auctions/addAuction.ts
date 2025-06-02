@@ -5,6 +5,7 @@ import { headersConfig } from "../../config/headers";
 import { getDbConnection } from "../../commons/db-conecction";
 import { DataSource, Repository } from "typeorm";
 import { AuctionEntity } from "../../entities/auction.entity";
+import { isWithinPeriod } from "../../utils/dateValidations";
 
 interface CreateAuction {
     teamId: number;
@@ -15,19 +16,71 @@ interface CreateAuction {
 
 export async function handler(event: APIGatewayEvent) {
     try {
+        if (!event.body) {
+            return {
+                headers: headersConfig,
+                statusCode: 400,
+                body: JSON.stringify({ message: 'El cuerpo de la petición no puede estar vacío' })
+            };
+        }
+
+        const { teamId, playerId, value, seasonId } = JSON.parse(event.body);
+
         const dataSource: DataSource = await getDbConnection();
-        const request = JSON.parse(event.body || '{}') as Partial<CreateAuction>;
 
-        const seasonId = await fetchCurrentSeason(dataSource);
-        const auction = { ...request, seasonId };
+        // Obtener la temporada y sus fechas
+        const [season] = await dataSource.query(`
+            SELECT 
+                auctionsStartDate,
+                auctionsEndDate
+            FROM seasons 
+            WHERE id = ?
+        `, [seasonId]);
 
-        const repository: Repository<AuctionEntity> = dataSource.getRepository(AuctionEntity);
-        const entity = repository.create(auction);
-        await repository.save(entity);
+        if (!season) {
+            return {
+                headers: headersConfig,
+                statusCode: 404,
+                body: JSON.stringify({ 
+                    message: 'Temporada no encontrada',
+                    code: 'SEASON_NOT_FOUND'
+                })
+            };
+        }
+
+        // Validar si estamos en período de subastas
+        const utcNow = new Date();
+        const canAuction = isWithinPeriod(
+            utcNow,
+            season.auctionsStartDate ? new Date(season.auctionsStartDate) : null,
+            season.auctionsEndDate ? new Date(season.auctionsEndDate) : null
+        );
+
+        if (!canAuction) {
+            return {
+                headers: headersConfig,
+                statusCode: 400,
+                body: JSON.stringify({ 
+                    message: 'No se pueden realizar subastas en este momento',
+                    code: 'AUCTION_PERIOD_CLOSED',
+                    currentUTCTime: utcNow.toISOString(),
+                    auctionPeriod: {
+                        start: season.auctionsStartDate,
+                        end: season.auctionsEndDate
+                    }
+                })
+            };
+        }
+
+        // Registrar la subasta con timestamp UTC
+        await dataSource.query(`
+            INSERT INTO Auctions (teamId, playerId, seasonId, value, date)
+            VALUES (?, ?, ?, ?, UTC_TIMESTAMP())
+        `, [teamId, playerId, seasonId, value]);
 
         await dataSource.query(`
             UPDATE Negotiations SET transferValue = ? WHERE buyerTeamId = ? AND playerId = ? AND seasonId = ?`,
-        [auction.value, auction.teamId, auction.playerId, auction.seasonId]);
+        [value, teamId, playerId, seasonId]);
 
         Amplify.configure({
             API: {
@@ -43,16 +96,23 @@ export async function handler(event: APIGatewayEvent) {
         await events.post('/default/channel', { sync: true });
 
         return {
+            headers: headersConfig,
             statusCode: 200,
-            body: JSON.stringify({ message: "Puja creada correctamente." }),
+            body: JSON.stringify({ 
+                message: 'Subasta registrada correctamente',
+                timestamp: new Date().toISOString()
+            })
         };
 
     } catch (error) {
-        console.error('Error saving contract offer:', error);
+        console.error('Error al crear la subasta:', error);
         return {
             headers: headersConfig,
             statusCode: 500,
-            body: JSON.stringify({ message: 'An error occurred while creating the contract offer.' }),
+            body: JSON.stringify({
+                message: 'Error interno del servidor al crear la subasta.',
+                error: error instanceof Error ? error.message : 'Error desconocido'
+            })
         };
     }
 }

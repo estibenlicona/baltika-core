@@ -44,6 +44,9 @@ export class FixtureService {
                 round,
                 matchDay: matchDayIndex + 1,
                 matchNumber: matchNumberIndex + 1,
+                played: false,
+                homeGoals: 0,
+                awayGoals: 0
             } as Match))
         );
     }

@@ -8,4 +8,5 @@ export interface Match {
     awayGoals?: number;
     awayId?: number;
     homeId?: number;
+    played?: boolean;
 }

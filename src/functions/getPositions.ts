@@ -20,17 +20,6 @@ interface PositionsQuery {
 
 
 export async function handler(event: APIGatewayEvent) {
-    
-    const tournamentId: number = Number(event.pathParameters?.tournamentId);
-    const round: number = Number(event.pathParameters?.round);
-
-    if (!tournamentId || !round) {
-        return {
-            headers: headersConfig,
-            statusCode: 400,
-            body: JSON.stringify({ message: "Missing required parameters: tournamentId, seasonId, or round." }),
-        };
-    }
 
     const dataSource: DataSource = await getDbConnection();
 
@@ -49,9 +38,7 @@ export async function handler(event: APIGatewayEvent) {
                 SUM(awayGoals) AS goals_against
             FROM matchs
             WHERE played = 1
-              AND tournamentId = ?
               AND seasonId = ?
-              AND round = ?
             GROUP BY homeId
         ),
         away_stats AS (
@@ -65,9 +52,7 @@ export async function handler(event: APIGatewayEvent) {
                 SUM(homeGoals) AS goals_against
             FROM matchs
             WHERE played = 1
-              AND tournamentId = ?
               AND seasonId = ?
-              AND round = ?
             GROUP BY awayId
         ),
         team_stats AS (
@@ -104,7 +89,7 @@ export async function handler(event: APIGatewayEvent) {
         WHERE t.active = 1
         ORDER BY points DESC, goal_difference DESC, wins DESC, goals_for DESC;
         `,
-        [tournamentId, seasonId, round, tournamentId, seasonId, round] // Duplicamos los parámetros
+        [seasonId, seasonId] // Duplicamos los parámetros
     );
 
     return {

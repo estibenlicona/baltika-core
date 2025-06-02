@@ -5,13 +5,12 @@ provider:
   runtime: nodejs18.x
   region: us-east-1
   environment:
-    DB_HOST: baltika.ctioae0mycpp.us-east-1.rds.amazonaws.com
+    DB_HOST: baltikadb.ctioae0mycpp.us-east-1.rds.amazonaws.com
     DB_PORT: 3306
     DB_USER: admin
     DB_PASSWORD: Baltika2025*
     DB_NAME: baltikadb
-    MONGO_DB_NAME: baltika
-    MONGO_URI: mongodb+srv://estibenlicona:21ShvmZs4e4UszGP@cluster0.k4jdy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+    COGNITO_USER_POOL_ID: us-east-1_y3DKBQYxn
   httpApi:
     cors:
       allowedOrigins:
@@ -26,7 +25,39 @@ provider:
         - DELETE
       allowedHeaders:
         - '*'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - cognito-idp:ListUsers
+            - cognito-idp:AdminDisableUser
+            - cognito-idp:AdminEnableUser
+            - cognito-idp:AdminUpdateUserAttributes
+          Resource: 
+            - arn:aws:cognito-idp:${aws:region}:${aws:accountId}:userpool/${self:provider.environment.COGNITO_USER_POOL_ID}
 functions:
+  updateUserStatus:
+    handler: dist/functions/updateUserStatus.handler
+    events:
+      - httpApi:
+          method: put
+          path: /users/status
+    timeout: 30
+  updateUserTeam:
+    handler: dist/functions/updateUserTeam.handler
+    events:
+      - httpApi:
+          method: put
+          path: /users/team
+    timeout: 30
+  getUsers:
+    handler: dist/functions/getUsers.handler
+    events:
+      - httpApi:
+          method: get
+          path: /users
+    timeout: 30
   getUser:
     handler: dist/functions/getUser.handler
     events:
@@ -64,13 +95,20 @@ functions:
     events:
       - httpApi:
           method: post
-          path: /season
+          path: /seasons
   createTeam:
     handler: dist/functions/createTeam.handler
     events:
       - httpApi:
           method: post
-          path: /team
+          path: /teams
+  updateTeam:
+    handler: dist/functions/updateTeam.handler
+    events:
+      - httpApi:
+          method: put
+          path: /teams
+    timeout: 30
   updateMatch:
     handler: dist/functions/updateMatch.handler
     events:
@@ -90,7 +128,7 @@ functions:
     events:
       - httpApi:
           method: get
-          path: /positions/{tournamentId}/{seasonId}/{round}
+          path: /positions
     timeout: 30
   getTeams:
     handler: dist/functions/getTeams.handler
@@ -168,6 +206,76 @@ functions:
           method: get
           path: /scorers
     timeout: 30
+  getSeasons:
+    handler: dist/functions/getSeasons.handler
+    events:
+      - httpApi:
+          method: get
+          path: /seasons
+    timeout: 30
+  getTournaments:
+    handler: dist/functions/getTournaments.handler
+    events:
+      - httpApi:
+          method: get
+          path: /tournaments
+    timeout: 30
+  deleteSeason:
+    handler: dist/functions/deleteSeason.handler
+    events:
+      - httpApi:
+          method: delete
+          path: /seasons/{id}
+    timeout: 30
+  getSeasonById:
+    handler: dist/functions/getSeasonById.handler
+    events:
+      - httpApi:
+          method: get
+          path: /seasons/{id}
+    timeout: 30
+  updateSeason:
+    handler: dist/functions/updateSeason.handler
+    events:
+      - httpApi:
+          method: put
+          path: /seasons/{id}
+    timeout: 30
+  addTeamToSeason:
+    handler: dist/functions/addTeamToSeason.handler
+    events:
+      - httpApi:
+          method: post
+          path: /seasons/{seasonId}/teams
+    timeout: 30
+  getSeasonTeams:
+    handler: dist/functions/getSeasonTeams.handler
+    events:
+      - httpApi:
+          method: get
+          path: /seasons/{seasonId}/teams
+    timeout: 30
+  updateSeasonTeams:
+    handler: dist/functions/updateSeasonTeams.handler
+    events:
+      - httpApi:
+          method: put
+          path: /seasons/{seasonId}/teams
+    timeout: 30
+  getFixtureStats:
+    handler: dist/functions/getFixtureStats.handler
+    events:
+      - httpApi:
+          method: get
+          path: /seasons/{seasonId}/fixture-stats
+    timeout: 30
+  recreateFixture:
+    handler: dist/functions/recreateFixture.handler
+    events:
+      - httpApi:
+          method: post
+          path: /recreate-fixture
+    timeout: 60
   addAuctions:
     handler: dist/functions/auctions/addAuction.handler
     events:
@@ -187,6 +295,20 @@ functions:
       - httpApi:
           method: delete
           path: /auctions
+    timeout: 30
+  activateSeason:
+    handler: dist/functions/activateSeason.handler
+    events:
+      - httpApi:
+          method: put
+          path: /seasons/{id}/activate
+    timeout: 30
+  updateSeasonDates:
+    handler: dist/functions/updateSeasonDates.handler
+    events:
+      - httpApi:
+          method: put
+          path: /seasons/{id}/dates
     timeout: 30
 plugins:
   - serverless-offline
