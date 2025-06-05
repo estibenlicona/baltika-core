@@ -24,3 +24,17 @@ dotnet run
 ```
 
 Swagger is enabled in development for easy exploration of the available endpoints.
+
+## Module Structure
+
+Each module under `Baltika.Api/Modules` follows a basic hexagonal architecture:
+
+```
+<Module>
+├── Api/Controllers        - HTTP entry points
+├── Application            - Use cases and services
+├── Domain                 - Entities and repository interfaces
+└── Infrastructure         - Repository implementations or external adapters
+```
+
+The existing lambda logic is gradually being ported into these modules. The `Teams` module contains a simple in-memory repository as an example.

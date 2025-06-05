@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Baltika.Api.Modules.Tournaments.Controllers
+namespace Baltika.Api.Modules.Tournaments.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

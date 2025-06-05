@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Baltika.Api.Modules.Budgets.Controllers
+namespace Baltika.Api.Modules.Budgets.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
