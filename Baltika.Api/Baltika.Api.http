@@ -1,6 +1,0 @@
-@Baltika.Api_HostAddress = http://localhost:5244
-
-GET {{Baltika.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
