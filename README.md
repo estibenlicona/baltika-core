@@ -4,7 +4,7 @@ This repository originally contained AWS Lambda functions written in Node.js. Th
 
 ## .NET API
 
-A new ASP.NET Core Web API project lives in the `Baltika.Api` folder. Modules are represented under `Baltika.Api/Modules` and include placeholder controllers for:
+A new ASP.NET Core Web API project lives in the `Baltika/Baltika.Api` folder. Modules are represented under `Baltika/Baltika.Api/Modules` and include placeholder controllers for:
 
 - Users & Authentication
 - Teams
@@ -19,7 +19,7 @@ A new ASP.NET Core Web API project lives in the `Baltika.Api` folder. Modules a
 Run the API with:
 
 ```bash
-cd Baltika.Api
+cd Baltika/Baltika.Api
 dotnet run
 ```
 
